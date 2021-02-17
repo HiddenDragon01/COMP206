@@ -1,0 +1,48 @@
+# Ryan Sowa, ID#: 260886668
+
+# Make sure the script is running under Bash
+#!/bin/bash
+
+# Verify that the script has at least 3 arguments. If it does not, the script must terminate with an error message. 
+if [ "$#" -lt 3 ] 
+then
+  echo "You have the incorrect number of arguments. The correct syntax is: ./backup SWITCH FILES DEST MESSAGE. Please try again."
+  exit 1
+fi
+
+# If the first argument is -D, then shift all arguments by 1.
+if [ "$1" == "-D" ]
+then 
+  shift 1
+else
+  :
+fi
+
+# Verify that the DEST directory exists. If it does exist,then do nothing. If it does not exist,then create the directory
+if [ -d "$2" ]
+then
+  :
+else
+ mkdir $2
+fi
+
+# Store the date in a variable, DATE
+DATE=`date +%F`
+
+# Using the TAR command, backup all the FILES to DEST.Call the backupfile name: “backupDATE.tar”.  Where DATE is today’s date
+tar -cvf $2/backup$DATE.tar $1
+
+# CHMOD the tar file as RW for only the owner
+chmod 600 $2/backup$DATE.tar
+
+# Store the time in a variable, TIME
+TIME=`date +%X`
+
+# Store the "MESSAGE" arguments in a variable, message
+for c in "${@:3}"; 
+do
+	message="$message $c"
+done
+
+# Append to a logfile called “backups.log” the MESSAGE preceded by today's date and time. Each time the backup script is called, a new log is appended to this file.
+echo "$DATE $TIME$message " >> backups.log
